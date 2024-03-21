@@ -76,8 +76,7 @@
 </template>
 
 <script>
-import { cloneDeep, getDeepList, getTreeKeys, treeToList, handleLeftTreeData, uniqueTree, isChecked } from './index';
-import { findPathById, filterTreeArray } from '@/utils/treeUtils.js';
+import { findPathById, filterTreeArray, cloneDeep, getDeepList, getTreeKeys, treeToList, handleLeftTreeData, uniqueTree, isChecked } from './index';
 
 export default {
   name: 'OptionsTransfer',
@@ -162,7 +161,7 @@ export default {
       if (direction === 'right') {
         this.targetKeys = this.leftCheckedAllKey;
         this.rightCheckedKey = [];
-        this.rightTreeData = findPathById(cloneDeep(this.originTreeData), this.leftCheckedAllKey);
+        this.rightTreeData = this.uniqueObject(findPathById(cloneDeep(this.originTreeData), this.leftCheckedAllKey));
         this.leftTreeData = handleLeftTreeData(cloneDeep(this.originTreeData), this.leftCheckedKey, 'right');
       } else if (direction === 'left') {
         this.rightTreeData = filterTreeArray(this.rightTreeData, this.rightCheckedKey, 'id');
@@ -175,6 +174,7 @@ export default {
       this.rightExpandedKeys = getTreeKeys(this.rightTreeData);
       this.emitKeys = this.rightExpandedKeys;
     },
+
     // 左侧选择
     handleLeftChecked(_, { node, halfCheckedKeys }, checkedKeys, itemSelect) {
       this.leftCheckedKey = _;
@@ -189,6 +189,19 @@ export default {
       this.rightCheckedAllKey = [...halfCheckedKeys, ..._];
       const { eventKey } = node;
       itemSelect(eventKey, isChecked(_, eventKey));
+    },
+     uniqueObject(arr) {
+      let obj = {};
+      arr.forEach((item, index) => {
+        // 若重复则删除该项
+        if (obj.hasOwnProperty(item.id)) {
+          arr.splice(index, 1);
+          // 不重复则存入obj
+        } else {
+          obj[item.id] = item.name;
+        }
+      });
+      return arr;
     },
     getParentKey(key, tree) {
       let parentKey;
