@@ -7,6 +7,48 @@ export function cloneDeep(data) {
 }
 
 /**
+ * 通过id获取树的完整路径
+ * @param tree 树型数据
+ * @param ids  id集合
+ * @param keyName 关键字
+ */
+export function findPathById(tree, ids, keyName = 'id') {
+  const result = [];
+  for (const node of tree) {
+    if (ids.includes(node[keyName]) && node.isLeaf) {
+      result.push(node);
+    }
+    if (node.children) {
+      const childResults = findPathById(node.children, ids);
+      if (childResults.length > 0) {
+        result.push({ ...node, children: childResults });
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * 通过id过滤树的id所在子节点
+ * @param tree 树型数据
+ * @param ids  id集合
+ * @param keyName 关键字
+ */
+export function filterTreeArray(tree, ids, keyName = 'id') {
+  return tree
+    .filter((item) => {
+      return ids.indexOf(item[keyName]) == -1;
+    })
+    .map((item) => {
+      item = Object.assign({}, item);
+      if (item.children) {
+        item.children = filterTreeArray(item.children, ids);
+      }
+      return item;
+    });
+}
+
+/**
  * 树转数组
  * @param tree
  * @param hasChildren
